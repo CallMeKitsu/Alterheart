@@ -24,6 +24,7 @@ function preload() {
 
     this.load.image('background', 'assets/images/BG1.png')
     this.load.image('clouds', 'assets/images/BG2.png')
+    this.load.image('wood', 'assets/images/BG3.png')
 
     this.load.image('tiles', 'assets/tilesets/Tileset.png')
     this.load.tilemapTiledJSON('map', 'assets/tilemaps/level1.json')
@@ -32,9 +33,9 @@ function preload() {
 
 function create() {
 
-    console.log(this)
     this.add.image(250, 150, 'background').setScale(1.7)
     this.add.image(250, 150, 'clouds').setScale(1.7)
+    this.add.image(250, 150, 'wood').setScale(1.7)
 
     const map = this.make.tilemap({ key: 'map' })
 
