@@ -6,29 +6,41 @@ export class Menu extends Phaser.Scene {
     this.load.image('clouds', 'assets/images/backgrounds/BG2.png')
     this.load.image('wood', 'assets/images/backgrounds/BG3.png')
 
-    this.load.image('button', 'assets/images/button.png')
-
-    this.load.image('tiles', 'assets/tilesets/Tileset.png')
-    this.load.tilemapTiledJSON('map', 'assets/tilemaps/level1.json')
+    this.load.image('play_up', 'assets/images/buttons/play_up.png')
+    this.load.image('play_down', 'assets/images/buttons/play_down.png')
+    this.load.image('options_down', 'assets/images/buttons/options_down.png')
+    this.load.image('options_up', 'assets/images/buttons/options_up.png')
+    this.load.image('quit_up', 'assets/images/buttons/quit_up.png')
+    this.load.image('quit_down', 'assets/images/buttons/quit_down.png')
 
   }
 
   create() {
 
+    const SCALE = 1
+    const MENU_X = 250
+
     this.add.image(250, 150, 'background').setScale(1.7)
     this.add.image(250, 150, 'clouds').setScale(1.7)
     this.add.image(250, 150, 'wood').setScale(1.7)
-    
-    const helloButton = this.add.text(100, 100, 'Hello Phaser!', { fill: '#0f0' });
-    helloButton.setInteractive();
 
-    helloButton.on('pointerover', () => { console.log('pointerover'); });
+    let playButton = this.add.image(MENU_X, 130, 'play_up').setScale(SCALE)
+      .setInteractive()
+    //.on('pointerdown', () => this.scene.start('Selector'))
+      .on('pointerover', () => playButton.setTexture('play_down') )
+      .on('pointerout', () => playButton.setTexture('play_up') )
 
-    const map = this.make.tilemap({ key: 'map' })
+    let optionsButton = this.add.image(MENU_X, 187, 'options_up').setScale(SCALE)
+      .setInteractive()
+    //.on('pointerdown', () => this.scene.start('Options'))  
+      .on('pointerover', () => optionsButton.setTexture('options_down') )
+      .on('pointerout', () => optionsButton.setTexture('options_up') )
 
-    const tileset = map.addTilesetImage('tilemap', 'tiles')
-
-    map.createStaticLayer('Tiled Layer 1', tileset, 0, 0)
+    let quitButton = this.add.image(MENU_X, 244, 'quit_up').setScale(SCALE)
+      .setInteractive()
+      .on('pointerdown', () => window.close())
+      .on('pointerover', () => quitButton.setTexture('quit_down') )
+      .on('pointerout', () => quitButton.setTexture('quit_up') )
 
   }
 
