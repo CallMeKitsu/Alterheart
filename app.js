@@ -1,7 +1,8 @@
 const WIDTH = 500
 const HEIGHT = 300
 
-import { Menu } from './scenes/menu.js'
+import { Menu } from './scenes/Menu.js'
+import { Level_1 } from './scenes/Level_1.js'
 
 const config = {
     width: WIDTH,
@@ -11,10 +12,11 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: {y: 400}
+            gravity: {y: 400},
+            debug: false
         }
     },
-    scene: [Menu]
+    scene: [Menu, Level_1]
 }
 
 const game = new Phaser.Game(config)

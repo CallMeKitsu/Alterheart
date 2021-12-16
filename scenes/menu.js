@@ -1,5 +1,11 @@
 export class Menu extends Phaser.Scene {
 
+  constructor() {
+        super({
+            key: "Menu"
+        });
+    }
+
   preload() {
 
     this.load.image('background', 'assets/images/backgrounds/BG1.png')
@@ -26,7 +32,7 @@ export class Menu extends Phaser.Scene {
 
     let playButton = this.add.image(MENU_X, 130, 'play_up').setScale(SCALE)
       .setInteractive()
-    //.on('pointerdown', () => this.scene.start('Selector'))
+      .on('pointerdown', () => this.scene.start('Level_1'))
       .on('pointerover', () => playButton.setTexture('play_down') )
       .on('pointerout', () => playButton.setTexture('play_up') )
 
