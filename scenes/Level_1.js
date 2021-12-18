@@ -22,7 +22,7 @@ export class Level_1 extends Phaser.Scene {
     this.load.image('wood', 'assets/images/backgrounds/BG3.png')
     this.load.image('solid', 'assets/images/level1/solid.png')
     this.load.image('decors', 'assets/images/level1/decors.png')
-    this.load.json('hitbox', 'assets/hitboxes/level1.json');
+    this.load.json('hitbox', 'assets/hitboxes/level1.json')
     
     this.load.spritesheet('player', 
       'assets/sprites/dude.png',
@@ -48,33 +48,37 @@ export class Level_1 extends Phaser.Scene {
   }
 
   update() {
-
-    console.log(this.player.body.velocity.y)
     
-    this.move(false)
-    this.attack()
+    this.move(true)
 
   }
 
   move(log) {
     
     let cursors = this.input.keyboard.createCursorKeys()
+    this.keys = this.input.keyboard.addKeys({
+      space: "SPACE",
+      keyUp: "Z",
+      keyDown: "S",
+      keyRight: "D",
+      keyLeft: "Q",
+    })
 
-    if (cursors.left.isDown && cursors.up.isUp) {
+    if (this.keys.keyLeft.isDown && this.keys.keyUp.isUp) {
 
       if(log === true) console.log("gauche")
       this.player.anims.play('left', true)
       this.player.setVelocityX(-this.SPEED)
 
     }
-    else if (cursors.right.isDown && cursors.up.isUp) {
+    else if (this.keys.keyRight.isDown && this.keys.keyUp.isUp) {
 
       if(log === true) console.log('droite')
       this.player.anims.play('right', true)
       this.player.setVelocityX(this.SPEED)
 
     }
-    else if (cursors.right.isDown && cursors.up.isDown && cursors.left.isUp) {
+    else if (this.keys.keyRight.isDown && this.keys.keyUp.isDown && this.keys.keyLeft.isUp) {
 
       if(log === true) console.log('droite haut')
       this.player.anims.play('jump_right', true)
@@ -82,7 +86,7 @@ export class Level_1 extends Phaser.Scene {
       if(this.onGround(this.player)) this.player.setVelocityY(-this.JUMP)
       
     }
-    else if (cursors.left.isDown && cursors.up.isDown && cursors.right.isUp) {
+    else if (this.keys.keyLeft.isDown && this.keys.keyUp.isDown && this.keys.keyRight.isUp) {
 
       if(log === true) console.log('gauche haut')
       this.player.anims.play('jump_left', true)
@@ -90,11 +94,17 @@ export class Level_1 extends Phaser.Scene {
       if(this.onGround(this.player, this.platforms)) this.player.setVelocityY(-this.JUMP)
 
     }
-    else if (cursors.up.isDown && cursors.left.isUp && cursors.right.isUp) {
+    else if (this.keys.keyUp.isDown && this.keys.keyLeft.isUp && this.keys.keyRight.isUp) {
 
       if(log === true) console.log('haut')
       if(this.onGround(this.player, this.platforms)) this.player.setVelocityY(-this.JUMP)
 
+    }
+    else if (this.onGround(this.player) && this.keys.space.isDown) {
+
+      if(log === true) console.log('slash droite')
+      this.player.anims.play('slash_right')
+    
     }
     else { 
 
@@ -102,18 +112,6 @@ export class Level_1 extends Phaser.Scene {
       this.player.setVelocityX(0)
       
     }
-  }
-
-  attack() {
-
-    let cursors = this.input.keyboard.addKeys('X')
-    let arrows = this.input.keyboard.createCursorKeys()
-
-    if(this.onGround(this.player) && cursors.X.isDown && arrows.right.isDown) {
-      this.player.anims.play('slash_right')
-    }
-
-
   }
 
   createAnims() {
