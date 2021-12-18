@@ -1,7 +1,8 @@
 export class Level_1 extends Phaser.Scene {
 
-  SPEED = 4
-  JUMP = 7
+  SPEED = 5
+  JUMP = 8
+  PLACEMENT = 1600
 
   constructor() {
     super({
@@ -20,8 +21,8 @@ export class Level_1 extends Phaser.Scene {
     this.load.image('background', 'assets/images/backgrounds/BG1.png')
     this.load.image('clouds', 'assets/images/backgrounds/BG2.png')
     this.load.image('wood', 'assets/images/backgrounds/BG3.png')
-    this.load.image('solid', 'assets/images/level1/solid.png')
-    this.load.image('decors', 'assets/images/level1/decors.png')
+    this.load.image('solid', 'assets/images/test/solid.png')
+    this.load.image('decors', 'assets/images/test/decors.png')
     this.load.json('hitbox', 'assets/hitboxes/level1.json')
     
     this.load.spritesheet('player', 
@@ -29,39 +30,47 @@ export class Level_1 extends Phaser.Scene {
       { frameWidth: 84, frameHeight: 84 }
     )
 
+    this.load.spritesheet('wolf', 
+      'assets/sprites/animals.png',
+      {frameWidth: 16, frameHeight: 16 }
+    )
+
   }
 
   create() {
 
-    this.matter.world.setBounds()
-    
-    this.add.image(250, 150, 'background').setScale(1.7)
-    this.add.image(250, 150, 'clouds').setScale(1.7)
-    this.add.image(250, 150, 'wood').setScale(1.7)
+    this.add.image(250, 150, 'background').setScale(1.7).setScrollFactor(0)
+    this.add.image(250, 150, 'clouds').setScale(1.7).setScrollFactor(0)
+    this.add.image(250, 150, 'wood').setScale(1.7).setScrollFactor(0)
     this.collide()
-    this.add.image(250, 150, 'decors')
+    this.decors = this.add.image(this.PLACEMENT, 150, 'decors')
 
     this.player = this.matter.add.sprite(250, 0, 'player', 0).setScale(0.7).setCollisionGroup(this.platforms).setFixedRotation()
-
     this.createAnims()
+
+    this.cameras.main.setBounds(0, 0, this.solid.displayWidth, this.solid.displayHeight)
+    this.cameras.main.startFollow(this.player, true, 0.05, 0.05)
+    this.cameras.main.scrollY = 150
 
   }
 
   update() {
+
+    console.log(this.player.x)
     
-    this.move(true)
+    this.move(false)
 
   }
 
   move(log) {
     
-    let cursors = this.input.keyboard.createCursorKeys()
+    this.cursors = this.input.keyboard.createCursorKeys()
     this.keys = this.input.keyboard.addKeys({
       space: "SPACE",
-      keyUp: "Z",
-      keyDown: "S",
-      keyRight: "D",
-      keyLeft: "Q",
+      keyUp: this.cursors.up,
+      keyDown: this.cursors.down,
+      keyRight: this.cursors.right,
+      keyLeft: this.cursors.left,
     })
 
     if (this.keys.keyLeft.isDown && this.keys.keyUp.isUp) {
@@ -172,10 +181,11 @@ export class Level_1 extends Phaser.Scene {
     this.platforms = this.matter.world.nextGroup()
 
     var shapes = this.cache.json.get('hitbox')
-    this.matter.world.setBounds(0, 0, 500, 300)
 
-    this.ground = this.matter.add.image(250, 253, 'solid', 'ground', {shape: shapes.solid}).setStatic(true).setCollisionGroup(this.platforms)
+    this.solid = this.matter.add.image(this.PLACEMENT, 245, 'solid', 0, {shape: shapes.solid}).setStatic(true).setCollisionGroup(this.platforms)
     
+    this.matter.world.setBounds(0, 0, this.solid.displayWidth, this.solid.displayHeight)
+
   }
 
   onGround(sprite) {
