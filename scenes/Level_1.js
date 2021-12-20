@@ -3,6 +3,7 @@ export class Level_1 extends Phaser.Scene {
   SPEED = 5
   JUMP = 8
   PLACEMENT = 1600
+  ITEMSCALE = 1
 
   constructor() {
     super({
@@ -10,7 +11,7 @@ export class Level_1 extends Phaser.Scene {
       physics: {
         matter: {
           gravity: { y: 1 },
-          debug: false
+          debug: true
         },
       }
     })
@@ -21,19 +22,16 @@ export class Level_1 extends Phaser.Scene {
     this.load.image('background', 'assets/images/backgrounds/BG1.png')
     this.load.image('clouds', 'assets/images/backgrounds/BG2.png')
     this.load.image('wood', 'assets/images/backgrounds/BG3.png')
-    this.load.image('solid', 'assets/images/test/solid.png')
-    this.load.image('decors', 'assets/images/test/decors.png')
-    this.load.json('hitbox', 'assets/hitboxes/level1.json')
-    
-    this.load.spritesheet('player', 
-      'assets/sprites/dude.png',
-      { frameWidth: 84, frameHeight: 84 }
-    )
+    this.load.image('solid', 'assets/images/level1/solid.png')
+    this.load.image('decors', 'assets/images/level1/decors.png')
+    this.load.image('key', 'assets/images/level1/key.png')
 
-    this.load.spritesheet('wolf', 
-      'assets/sprites/animals.png',
-      {frameWidth: 16, frameHeight: 16 }
-    )
+    this.load.json('hitbox_ground', 'assets/hitboxes/level1.json')
+    this.load.json('hitbox_player', 'assets/hitboxes/player.json')
+    
+    this.load.spritesheet('player', 'assets/sprites/dude.png', { frameWidth: 84, frameHeight: 84 })
+    this.load.spritesheet('wolf', 'assets/sprites/animals.png', {frameWidth: 16, frameHeight: 16 })
+    this.load.spritesheet('chest', 'assets/sprites/chests.png', { frameWidth: 47, frameHeight: 32 })
 
   }
 
@@ -44,21 +42,28 @@ export class Level_1 extends Phaser.Scene {
     this.add.image(250, 150, 'wood').setScale(1.7).setScrollFactor(0)
     this.collide()
     this.decors = this.add.image(this.PLACEMENT, 150, 'decors')
+    this.placeItems()
 
-    this.player = this.matter.add.sprite(250, 0, 'player', 0).setScale(0.7).setCollisionGroup(this.platforms).setFixedRotation()
+    var shapes = this.cache.json.get('hitbox_player')
+
+    this.player = this.matter.add.sprite(250, 200, 'player', 0, { shape: shapes.player })
+      .setScale(0.7)
+      .setCollidesWith([this.platforms])
+      .setFixedRotation()
+
     this.createAnims()
 
     this.cameras.main.setBounds(0, 0, this.solid.displayWidth, this.solid.displayHeight)
     this.cameras.main.startFollow(this.player, true, 0.05, 0.05)
-    this.cameras.main.scrollY = 150
+
+    this.createStoryVariables()
 
   }
 
   update() {
 
-    console.log(this.player.x)
-    
     this.move(false)
+    this.startStory()
 
   }
 
@@ -71,6 +76,7 @@ export class Level_1 extends Phaser.Scene {
       keyDown: this.cursors.down,
       keyRight: this.cursors.right,
       keyLeft: this.cursors.left,
+      X: "X"
     })
 
     if (this.keys.keyLeft.isDown && this.keys.keyUp.isUp) {
@@ -112,7 +118,7 @@ export class Level_1 extends Phaser.Scene {
     else if (this.onGround(this.player) && this.keys.space.isDown) {
 
       if(log === true) console.log('slash droite')
-      this.player.anims.play('slash_right')
+      this.player.anims.play('slash_right', true)
     
     }
     else { 
@@ -174,17 +180,55 @@ export class Level_1 extends Phaser.Scene {
         repeat: -1
     })   
 
+    this.anims.create({
+        key: 'standing_chest',
+        frames: this.anims.generateFrameNumbers('chest', { start: 0, end: 4 }),
+        frameRate: 10,
+        repeat: -1
+    })
+
+    this.anims.create({
+        key: 'opening_chest',
+        frames: this.anims.generateFrameNumbers('chest', { start: 4, end: 9 }),
+        frameRate: 10,
+        repeat: 0
+    })   
+
   }
 
   collide() {
 
-    this.platforms = this.matter.world.nextGroup()
+    this.platforms = this.matter.world.nextCategory()
 
-    var shapes = this.cache.json.get('hitbox')
-
-    this.solid = this.matter.add.image(this.PLACEMENT, 245, 'solid', 0, {shape: shapes.solid}).setStatic(true).setCollisionGroup(this.platforms)
+    var shapes = this.cache.json.get('hitbox_ground')
+    this.solid = this.matter.add.image(this.PLACEMENT, 245, 'solid', 0, { shape: shapes.solid }).setStatic(true).setCollisionCategory(this.platforms)
     
     this.matter.world.setBounds(0, 0, this.solid.displayWidth, this.solid.displayHeight)
+
+  }
+
+  placeItems() {
+
+    this.items = this.matter.world.nextCategory()
+
+    this.key = this.matter.add.image(this.PLACEMENT-673, 232, 'key', 0).setStatic(true).setCollisionCategory(this.items).setFixedRotation().setScale(this.ITEMSCALE)
+    this.key.visible = false
+
+    this.chest = this.matter.add.sprite(this.PLACEMENT-665, 239, 'chest', 0)
+      .setStatic(true)
+      .setCollisionCategory(this.items)
+    
+  }
+
+  startStory() {
+
+    if(this.firstchestopened === false && this.isInterract(this.chest) && this.keys.X.isDown) {
+      
+      this.firstchestopened = true
+      this.chest.anims.play('opening_chest', true)
+      this.key.visible = this.firstchestopened
+    
+    }
 
   }
 
@@ -195,6 +239,19 @@ export class Level_1 extends Phaser.Scene {
 
   }
 
+  isInterract(sprite) {
+
+    let diff = this.player.x - sprite.x
+
+    if(diff > -25 && diff < 25) return true
+    else return false
+
+  }
+
+  createStoryVariables() {
+
+    this.firstchestopened = false
   
+  }
 
 }

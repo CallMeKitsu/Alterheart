@@ -38,7 +38,7 @@ export class Menu extends Phaser.Scene {
 
     let optionsButton = this.add.image(MENU_X, 187, 'options_up').setScale(SCALE)
       .setInteractive()
-    //.on('pointerdown', () => this.scene.start('Options'))  
+      .on('pointerdown', () => this.scene.start('Options'))  
       .on('pointerover', () => optionsButton.setTexture('options_down') )
       .on('pointerout', () => optionsButton.setTexture('options_up') )
 
